@@ -18,9 +18,9 @@ const _pool = Facility('Pool access', Icons.pool);
 const _kitchen = Facility('Kitchenette', Icons.kitchen);
 const _service = Facility('24h room service', Icons.room_service);
 
-const String guestName = 'Sarah Namuli';
-const String guestEmail = 'sarah.namuli@gmail.com';
-const String guestPhone = '0772 123 456';
+const String guestName = 'Ntege Fahim';
+const String guestEmail = 'ntege.fahim@gmail.com';
+const String guestPhone = '0757 686 831';
 
 const List<Room> rooms = [
   Room(
