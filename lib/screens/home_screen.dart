@@ -11,16 +11,20 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final featured = rooms.where((r) => r.featured).toList();
+    // Get only featured rooms
+    final featuredRooms = rooms.where((r) => r.featured).toList();
 
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Top header section
             _Header(onNavigate: onNavigate),
+
+            // Featured rooms section
             SectionTitle(
-              title: 'Featured rooms',
+              title: 'Featured Rooms',
               actionLabel: 'See all',
               onAction: () => onNavigate(1),
             ),
@@ -29,15 +33,21 @@ class HomeScreen extends StatelessWidget {
               child: ListView.separated(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 scrollDirection: Axis.horizontal,
-                itemCount: featured.length,
+                itemCount: featuredRooms.length,
                 separatorBuilder: (_, __) => const SizedBox(width: 14),
-                itemBuilder: (_, i) =>
-                    RoomCard(room: featured[i], compact: true),
+                itemBuilder: (_, i) {
+                  return RoomCard(room: featuredRooms[i], compact: true);
+                },
               ),
             ),
+
             const SizedBox(height: 24),
+
+            // Weekend offer banner
             _OfferBanner(onTap: () => onNavigate(1)),
-            const SectionTitle(title: 'Hotel services'),
+
+            // Hotel services section
+            const SectionTitle(title: 'Hotel Services'),
             GridView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               shrinkWrap: true,
@@ -50,7 +60,7 @@ class HomeScreen extends StatelessWidget {
                 mainAxisExtent: 112,
               ),
               itemBuilder: (_, i) {
-                final s = services[i];
+                final service = services[i];
                 return Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
@@ -66,14 +76,14 @@ class HomeScreen extends StatelessWidget {
                     children: [
                       CircleAvatar(
                         radius: 18,
-                        backgroundColor: AppColors.primary.withOpacity(0.1),
-                        child: Icon(s.icon, size: 20, color: AppColors.primary),
+                        backgroundColor: const Color(0xFFE3EEFF),
+                        child: Icon(service.icon, size: 20, color: AppColors.primary),
                       ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            s.title,
+                            service.title,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
@@ -83,11 +93,13 @@ class HomeScreen extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            s.price,
+                            service.price,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                                fontSize: 12, color: AppColors.muted),
+                              fontSize: 12,
+                              color: AppColors.muted,
+                            ),
                           ),
                         ],
                       ),
@@ -96,7 +108,10 @@ class HomeScreen extends StatelessWidget {
                 );
               },
             ),
+
             const SizedBox(height: 24),
+
+            // Contact/help box
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 20),
               padding: const EdgeInsets.all(16),
@@ -112,13 +127,14 @@ class HomeScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Need help planning your stay?',
-                            style: TextStyle(fontWeight: FontWeight.w700)),
+                        Text(
+                          'Need help planning your stay?',
+                          style: TextStyle(fontWeight: FontWeight.w700),
+                        ),
                         SizedBox(height: 2),
                         Text(
-                          'Reception: +256 414 000 000 · 24 hours',
-                          style:
-                          TextStyle(fontSize: 12, color: AppColors.muted),
+                          'Reception: +256 414 000 000  |  24 hours',
+                          style: TextStyle(fontSize: 12, color: AppColors.muted),
                         ),
                       ],
                     ),
@@ -126,6 +142,7 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
             ),
+
             const SizedBox(height: 28),
           ],
         ),
@@ -134,6 +151,7 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
+// Header widget with gradient background and search card
 class _Header extends StatelessWidget {
   final ValueChanged<int> onNavigate;
   const _Header({required this.onNavigate});
@@ -153,7 +171,9 @@ class _Header extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
+        borderRadius: BorderRadius.vertical(
+          bottom: Radius.circular(28),
+        ),
       ),
       child: SafeArea(
         bottom: false,
@@ -161,14 +181,18 @@ class _Header extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 12),
+
+            // Welcome row
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Welcome back,',
-                        style: TextStyle(color: Colors.white70, fontSize: 13)),
+                    Text(
+                      'Welcome back,',
+                      style: TextStyle(color: Colors.white70, fontSize: 13),
+                    ),
                     Text(
                       guestName,
                       style: TextStyle(
@@ -179,54 +203,60 @@ class _Header extends StatelessWidget {
                     ),
                   ],
                 ),
+                // Avatar button to go to profile
                 GestureDetector(
                   onTap: () => onNavigate(2),
                   child: const CircleAvatar(
                     radius: 22,
-                    backgroundColor: AppColors.gold,
-                    child: Text('S',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 18)),
+                    backgroundColor: AppColors.accent,
+                    child: Icon(Icons.person, color: Colors.white, size: 24),
                   ),
                 ),
               ],
             ),
+
             const SizedBox(height: 22),
+
+            // Tagline
             const Text(
               'Find your perfect\nstay in Kampala',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 28,
+                fontSize: 26,
                 fontWeight: FontWeight.w800,
                 height: 1.2,
               ),
             ),
+
             const SizedBox(height: 18),
+
+            // Search / booking card
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
                 children: [
+                  // Location row
                   const Row(
                     children: [
-                      Icon(Icons.location_on,
-                          size: 18, color: AppColors.primary),
+                      Icon(Icons.location_on, size: 18, color: AppColors.primary),
                       SizedBox(width: 6),
-                      Text('Pearl Suites · Kololo, Kampala',
-                          style: TextStyle(fontWeight: FontWeight.w600)),
+                      Text(
+                        'Pearl Suites - Kololo, Kampala',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
                     ],
                   ),
                   const Divider(height: 24),
+                  // Dates and guests row
                   Row(
                     children: [
-                      _Info(label: 'Check-in', value: formatDate(checkIn)),
-                      _Info(label: 'Check-out', value: formatDate(checkOut)),
-                      const _Info(label: 'Guests', value: '2 adults'),
+                      _InfoItem(label: 'Check-in', value: formatDate(checkIn)),
+                      _InfoItem(label: 'Check-out', value: formatDate(checkOut)),
+                      const _InfoItem(label: 'Guests', value: '2 adults'),
                     ],
                   ),
                   const SizedBox(height: 14),
@@ -244,10 +274,11 @@ class _Header extends StatelessWidget {
   }
 }
 
-class _Info extends StatelessWidget {
+// Small info item used in the date/guest row
+class _InfoItem extends StatelessWidget {
   final String label;
   final String value;
-  const _Info({required this.label, required this.value});
+  const _InfoItem({required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -255,18 +286,22 @@ class _Info extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label,
-              style: const TextStyle(fontSize: 11, color: AppColors.muted)),
+          Text(
+            label,
+            style: const TextStyle(fontSize: 11, color: AppColors.muted),
+          ),
           const SizedBox(height: 2),
-          Text(value,
-              style: const TextStyle(
-                  fontSize: 13, fontWeight: FontWeight.w700)),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+          ),
         ],
       ),
     );
   }
 }
 
+// Promo banner for weekend offer
 class _OfferBanner extends StatelessWidget {
   final VoidCallback onTap;
   const _OfferBanner({required this.onTap});
@@ -280,9 +315,9 @@ class _OfferBanner extends StatelessWidget {
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [AppColors.gold, Color(0xFF9C7A2B)],
+            colors: [Color(0xFFFF8F00), Color(0xFFE65100)],
           ),
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(16),
         ),
         child: const Row(
           children: [
@@ -290,14 +325,17 @@ class _OfferBanner extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Weekend Escape',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800)),
+                  Text(
+                    'Weekend Escape',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
                   SizedBox(height: 4),
                   Text(
-                    'Save 15% on Friday–Sunday stays. Breakfast for two included.',
+                    'Save 15% on Friday to Sunday stays. Breakfast for two included.',
                     style: TextStyle(color: Colors.white, fontSize: 13),
                   ),
                 ],

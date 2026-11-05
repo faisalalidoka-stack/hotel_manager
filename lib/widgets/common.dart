@@ -3,7 +3,7 @@ import '../models/models.dart';
 import '../theme/app_theme.dart';
 import '../utils/format.dart';
 
-/// Shows the room photo if the asset exists, otherwise a themed gradient.
+// Shows the room photo if the asset exists, otherwise shows a colored gradient
 class RoomImage extends StatelessWidget {
   final Room room;
   final double height;
@@ -17,23 +17,27 @@ class RoomImage extends StatelessWidget {
       child: Image.asset(
         room.imagePath,
         fit: BoxFit.cover,
-        errorBuilder: (context, error, stack) => Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: room.gradient,
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+        errorBuilder: (context, error, stack) {
+          // If image not found, show a gradient with an icon instead
+          return Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: room.gradient,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
             ),
-          ),
-          child: Center(
-            child: Icon(room.icon, size: 56, color: Colors.white54),
-          ),
-        ),
+            child: Center(
+              child: Icon(room.icon, size: 56, color: Colors.white54),
+            ),
+          );
+        },
       ),
     );
   }
 }
 
+// Shows the price with a /night suffix
 class PriceText extends StatelessWidget {
   final int amount;
   final double size;
@@ -71,6 +75,7 @@ class PriceText extends StatelessWidget {
   }
 }
 
+// A section title row with optional "see all" button
 class SectionTitle extends StatelessWidget {
   final String title;
   final String? actionLabel;
@@ -98,7 +103,10 @@ class SectionTitle extends StatelessWidget {
             ),
           ),
           if (actionLabel != null)
-            TextButton(onPressed: onAction, child: Text(actionLabel!)),
+            TextButton(
+              onPressed: onAction,
+              child: Text(actionLabel!),
+            ),
         ],
       ),
     );

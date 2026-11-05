@@ -1,21 +1,32 @@
 import 'package:flutter/material.dart';
 import '../data/booking_store.dart';
 import '../data/static_data.dart';
-import '../models/models.dart';
 import '../theme/app_theme.dart';
 import '../utils/format.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
-  static const _pastStays = [
-    ('Executive Lake View', '3 – 5 Aug 2026', 'UGX 840,000'),
-    ('Deluxe Garden View', '12 – 14 Mar 2026', 'UGX 560,000'),
+  // Sample past stays shown as history
+  static const List<Map<String, String>> _pastStays = [
+    {
+      'name': 'Executive Lake View',
+      'dates': '3 - 5 Aug 2026',
+      'amount': 'UGX 840,000',
+    },
+    {
+      'name': 'Deluxe Garden View',
+      'dates': '12 - 14 Mar 2026',
+      'amount': 'UGX 560,000',
+    },
   ];
 
+  // Show a snack bar for features not yet built
   void _comingSoon(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('This section is coming in the next update.')),
+      const SnackBar(
+        content: Text('This section is coming in the next update.'),
+      ),
     );
   }
 
@@ -26,6 +37,7 @@ class ProfileScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
+          // Profile card
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
@@ -38,155 +50,142 @@ class ProfileScreen extends StatelessWidget {
               children: [
                 Row(
                   children: [
+                    // Avatar circle
                     const CircleAvatar(
                       radius: 30,
-                      backgroundColor: AppColors.gold,
-                      child: Text('S',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 26,
-                              fontWeight: FontWeight.w700)),
+                      backgroundColor: AppColors.accent,
+                      child: Icon(
+                        Icons.person,
+                        color: Colors.white,
+                        size: 30,
+                      ),
                     ),
                     const SizedBox(width: 14),
                     const Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(guestName,
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w700)),
+                          Text(
+                            guestName,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
                           SizedBox(height: 2),
-                          Text(guestEmail,
-                              style: TextStyle(
-                                  color: Colors.white70, fontSize: 12)),
-                          Text(guestPhone,
-                              style: TextStyle(
-                                  color: Colors.white70, fontSize: 12)),
+                          Text(
+                            guestEmail,
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 12,
+                            ),
+                          ),
+                          Text(
+                            guestPhone,
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 12,
+                            ),
+                          ),
                         ],
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 16),
+                // Loyalty points row
                 Container(
-                  padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.15),
+                    color: Colors.white24,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Row(
                     children: [
-                      Icon(Icons.workspace_premium,
-                          color: AppColors.gold, size: 20),
+                      Icon(Icons.star, color: AppColors.accent, size: 20),
                       SizedBox(width: 8),
-                      Text('Gold member',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700)),
+                      Text(
+                        'Gold Member',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                       Spacer(),
-                      Text('1,250 points',
-                          style: TextStyle(color: Colors.white70)),
+                      Text(
+                        '1,250 points',
+                        style: TextStyle(color: Colors.white70),
+                      ),
                     ],
                   ),
                 ),
               ],
             ),
           ),
+
           const SizedBox(height: 24),
-          const Text('My bookings',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-          const SizedBox(height: 10),
-          ValueListenableBuilder<List<Booking>>(
-            valueListenable: BookingStore.bookings,
-            builder: (context, list, _) {
-              if (list.isEmpty) {
-                return Container(
-                  padding: const EdgeInsets.all(18),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.luggage_outlined, color: AppColors.muted),
-                      SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          'No upcoming bookings yet. Browse rooms to plan your next stay.',
-                          style: TextStyle(color: AppColors.muted),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }
-              return Column(
-                children: list
-                    .map((b) => Card(
-                  color: Colors.white,
-                  elevation: 1,
-                  margin: const EdgeInsets.only(bottom: 10),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14)),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor:
-                      AppColors.primary.withOpacity(0.1),
-                      child: Icon(b.room.icon,
-                          color: AppColors.primary, size: 20),
-                    ),
-                    title: Text(b.room.name,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w700)),
-                    subtitle: Text(
-                      '${formatDate(b.checkIn)} → ${formatDate(b.checkOut)}\nRef: ${b.reference}',
-                    ),
-                    isThreeLine: true,
-                    trailing: Text(
-                      formatUgx(b.total),
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 12,
-                          color: AppColors.primary),
-                    ),
-                  ),
-                ))
-                    .toList(),
-              );
-            },
+
+          // My bookings section
+          const Text(
+            'My Bookings',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
           ),
-          const SizedBox(height: 14),
-          const Text('Past stays',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
           const SizedBox(height: 10),
-          ..._pastStays.map(
-                (s) => Card(
+
+          // Show bookings from the store
+          _BookingsList(),
+
+          const SizedBox(height: 14),
+
+          // Past stays section
+          const Text(
+            'Past Stays',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 10),
+
+          // Loop through past stays list
+          for (final stay in _pastStays)
+            Card(
               color: Colors.white,
               elevation: 1,
               margin: const EdgeInsets.only(bottom: 10),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14)),
+                borderRadius: BorderRadius.circular(14),
+              ),
               child: ListTile(
                 leading: const CircleAvatar(
-                  backgroundColor: Color(0xFFEFEFEF),
+                  backgroundColor: Color(0xFFEEEEEE),
                   child: Icon(Icons.history, color: AppColors.muted, size: 20),
                 ),
-                title: Text(s.$1,
-                    style: const TextStyle(fontWeight: FontWeight.w600)),
-                subtitle: Text(s.$2),
-                trailing: Text(s.$3,
-                    style: const TextStyle(
-                        fontSize: 12, color: AppColors.muted)),
+                title: Text(
+                  stay['name']!,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: Text(stay['dates']!),
+                trailing: Text(
+                  stay['amount']!,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.muted,
+                  ),
+                ),
               ),
             ),
-          ),
+
           const SizedBox(height: 14),
-          const Text('Account',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+
+          // Account settings section
+          const Text(
+            'Account',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+          ),
           const SizedBox(height: 10),
+
           Container(
             decoration: BoxDecoration(
               color: Colors.white,
@@ -194,54 +193,67 @@ class ProfileScreen extends StatelessWidget {
             ),
             child: Column(
               children: [
-                _MenuTile(
-                    icon: Icons.person_outline,
-                    title: 'Personal details',
-                    onTap: () => _comingSoon(context)),
+                _MenuRow(
+                  icon: Icons.person_outline,
+                  title: 'Personal Details',
+                  onTap: () => _comingSoon(context),
+                ),
                 const Divider(height: 1),
-                _MenuTile(
-                    icon: Icons.payment,
-                    title: 'Payment methods',
-                    onTap: () => _comingSoon(context)),
+                _MenuRow(
+                  icon: Icons.payment,
+                  title: 'Payment Methods',
+                  onTap: () => _comingSoon(context),
+                ),
                 const Divider(height: 1),
-                _MenuTile(
-                    icon: Icons.notifications_none,
-                    title: 'Notifications',
-                    onTap: () => _comingSoon(context)),
+                _MenuRow(
+                  icon: Icons.notifications_none,
+                  title: 'Notifications',
+                  onTap: () => _comingSoon(context),
+                ),
                 const Divider(height: 1),
-                _MenuTile(
-                    icon: Icons.help_outline,
-                    title: 'Help & support',
-                    onTap: () => _comingSoon(context)),
+                _MenuRow(
+                  icon: Icons.help_outline,
+                  title: 'Help and Support',
+                  onTap: () => _comingSoon(context),
+                ),
               ],
             ),
           ),
+
           const SizedBox(height: 16),
+
+          // Sign out button
           OutlinedButton.icon(
-            onPressed: () => showDialog(
-              context: context,
-              builder: (ctx) => AlertDialog(
-                title: const Text('Sign out?'),
-                content: const Text('You can sign back in at any time.'),
-                actions: [
-                  TextButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: const Text('Sign out?'),
+                  content: const Text('You can sign back in at any time.'),
+                  actions: [
+                    TextButton(
                       onPressed: () => Navigator.pop(ctx),
-                      child: const Text('Cancel')),
-                  TextButton(
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
                       onPressed: () => Navigator.pop(ctx),
-                      child: const Text('Sign out')),
-                ],
-              ),
-            ),
+                      child: const Text('Sign out'),
+                    ),
+                  ],
+                ),
+              );
+            },
             icon: const Icon(Icons.logout),
             label: const Text('Sign out'),
             style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.red.shade700,
+              foregroundColor: Colors.red,
               minimumSize: const Size.fromHeight(48),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14)),
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
           ),
+
           const SizedBox(height: 12),
         ],
       ),
@@ -249,12 +261,107 @@ class ProfileScreen extends StatelessWidget {
   }
 }
 
-class _MenuTile extends StatelessWidget {
+// Separate widget to show upcoming bookings list
+class _BookingsList extends StatefulWidget {
+  @override
+  State<_BookingsList> createState() => _BookingsListState();
+}
+
+class _BookingsListState extends State<_BookingsList> {
+  @override
+  void initState() {
+    super.initState();
+    // Listen for new bookings and rebuild this widget
+    BookingStore.bookings.addListener(_onBookingsChanged);
+  }
+
+  @override
+  void dispose() {
+    BookingStore.bookings.removeListener(_onBookingsChanged);
+    super.dispose();
+  }
+
+  void _onBookingsChanged() {
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bookingList = BookingStore.bookings.value;
+
+    if (bookingList.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: const Row(
+          children: [
+            Icon(Icons.luggage_outlined, color: AppColors.muted),
+            SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'No upcoming bookings yet. Browse rooms to plan your next stay.',
+                style: TextStyle(color: AppColors.muted),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      children: bookingList.map((booking) {
+        return Card(
+          color: Colors.white,
+          elevation: 1,
+          margin: const EdgeInsets.only(bottom: 10),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: const Color(0xFFE3EEFF),
+              child: Icon(
+                booking.room.icon,
+                color: AppColors.primary,
+                size: 20,
+              ),
+            ),
+            title: Text(
+              booking.room.name,
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+            subtitle: Text(
+              '${formatDate(booking.checkIn)} to ${formatDate(booking.checkOut)}\nRef: ${booking.reference}',
+            ),
+            isThreeLine: true,
+            trailing: Text(
+              formatUgx(booking.total),
+              style: const TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 12,
+                color: AppColors.primary,
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
+// A single menu row item
+class _MenuRow extends StatelessWidget {
   final IconData icon;
   final String title;
   final VoidCallback onTap;
-  const _MenuTile(
-      {required this.icon, required this.title, required this.onTap});
+  const _MenuRow({
+    required this.icon,
+    required this.title,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {

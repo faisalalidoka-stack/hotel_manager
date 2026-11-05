@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import '../models/models.dart';
 
+// Facility definitions - reused across multiple rooms
 const _wifi = Facility('Free Wi-Fi', Icons.wifi);
 const _ac = Facility('Air conditioning', Icons.ac_unit);
 const _tv = Facility('Smart TV', Icons.tv);
 const _shower = Facility('Hot shower', Icons.shower);
-const _coffee = Facility('Tea & coffee', Icons.coffee);
+const _coffee = Facility('Tea and coffee', Icons.coffee);
 const _breakfast = Facility('Breakfast included', Icons.free_breakfast);
 const _desk = Facility('Work desk', Icons.desk);
 const _safe = Facility('In-room safe', Icons.lock);
@@ -18,17 +19,19 @@ const _pool = Facility('Pool access', Icons.pool);
 const _kitchen = Facility('Kitchenette', Icons.kitchen);
 const _service = Facility('24h room service', Icons.room_service);
 
+// Guest profile details
 const String guestName = 'Ntege Fahim';
 const String guestEmail = 'ntege.fahim@gmail.com';
 const String guestPhone = '0757 686 831';
 
+// All available rooms
 const List<Room> rooms = [
   Room(
     id: 1,
     name: 'Standard Queen Room',
     type: 'Standard',
     description:
-    'A bright, comfortable room with a plush queen bed and a calm garden outlook. '
+        'A bright, comfortable room with a plush queen bed and a calm garden outlook. '
         'Ideal for solo travellers and couples visiting Kampala for business or a short getaway.',
     bed: '1 Queen bed',
     imagePath: 'assets/images/standard_queen.jpg',
@@ -38,7 +41,7 @@ const List<Room> rooms = [
     rating: 4.5,
     reviews: 128,
     facilities: [_wifi, _ac, _tv, _shower, _coffee, _parking],
-    gradient: [Color(0xFF2E7D6F), Color(0xFF0F4C45)],
+    gradient: [Color(0xFF1976D2), Color(0xFF1565C0)],
     icon: Icons.bed,
   ),
   Room(
@@ -46,7 +49,7 @@ const List<Room> rooms = [
     name: 'Standard Twin Room',
     type: 'Standard',
     description:
-    'Two single beds, a workspace and a modern en-suite bathroom. '
+        'Two single beds, a workspace and a modern en-suite bathroom. '
         'A practical choice for colleagues or friends travelling together.',
     bed: '2 Single beds',
     imagePath: 'assets/images/standard_twin.jpg',
@@ -56,7 +59,7 @@ const List<Room> rooms = [
     rating: 4.4,
     reviews: 96,
     facilities: [_wifi, _ac, _tv, _desk, _shower, _parking],
-    gradient: [Color(0xFF3B8F80), Color(0xFF145A52)],
+    gradient: [Color(0xFF1E88E5), Color(0xFF1565C0)],
     icon: Icons.single_bed,
   ),
   Room(
@@ -64,7 +67,7 @@ const List<Room> rooms = [
     name: 'Deluxe Garden View',
     type: 'Deluxe',
     description:
-    'A spacious king room overlooking our tropical gardens, with a sitting corner, '
+        'A spacious king room overlooking our tropical gardens, with a sitting corner, '
         'rain shower and complimentary breakfast served at the Pearl Terrace restaurant.',
     bed: '1 King bed',
     imagePath: 'assets/images/deluxe_garden.jpg',
@@ -74,7 +77,7 @@ const List<Room> rooms = [
     rating: 4.7,
     reviews: 214,
     facilities: [_wifi, _ac, _tv, _breakfast, _minibar, _safe, _shower, _pool],
-    gradient: [Color(0xFF4C8F5A), Color(0xFF1F5B3A)],
+    gradient: [Color(0xFF26A69A), Color(0xFF00796B)],
     icon: Icons.king_bed,
     featured: true,
   ),
@@ -83,7 +86,7 @@ const List<Room> rooms = [
     name: 'Executive Lake View',
     type: 'Executive',
     description:
-    'Wake up to sweeping views toward Lake Victoria from your private balcony. '
+        'Wake up to sweeping views toward Lake Victoria from your private balcony. '
         'Includes a dedicated work desk, premium bedding, lounge access and breakfast.',
     bed: '1 King bed',
     imagePath: 'assets/images/executive_lake.jpg',
@@ -93,9 +96,9 @@ const List<Room> rooms = [
     rating: 4.8,
     reviews: 173,
     facilities: [
-      _wifi, _ac, _tv, _balcony, _desk, _breakfast, _minibar, _safe, _bath, _pool
+      _wifi, _ac, _tv, _balcony, _desk, _breakfast, _minibar, _safe, _bath, _pool,
     ],
-    gradient: [Color(0xFF1E6F8C), Color(0xFF0F3F5A)],
+    gradient: [Color(0xFF1565C0), Color(0xFF0D47A1)],
     icon: Icons.king_bed,
     featured: true,
   ),
@@ -104,7 +107,7 @@ const List<Room> rooms = [
     name: 'Family Suite',
     type: 'Family',
     description:
-    'Two bedrooms with a shared living area and kitchenette, designed for families. '
+        'Two bedrooms with a shared living area and kitchenette, designed for families. '
         'Children stay free and extra beds are available on request.',
     bed: '2 Queen beds',
     imagePath: 'assets/images/family_suite.jpg',
@@ -114,9 +117,9 @@ const List<Room> rooms = [
     rating: 4.6,
     reviews: 89,
     facilities: [
-      _wifi, _ac, _tv, _kitchen, _breakfast, _safe, _shower, _parking, _pool
+      _wifi, _ac, _tv, _kitchen, _breakfast, _safe, _shower, _parking, _pool,
     ],
-    gradient: [Color(0xFFB07A3A), Color(0xFF6B4620)],
+    gradient: [Color(0xFFFF8F00), Color(0xFFE65100)],
     icon: Icons.family_restroom,
     featured: true,
   ),
@@ -125,7 +128,7 @@ const List<Room> rooms = [
     name: 'Presidential Suite',
     type: 'Suite',
     description:
-    'Our signature suite on the top floor with a separate lounge, dining area, '
+        'Our signature suite on the top floor with a separate lounge, dining area, '
         'private jacuzzi terrace and a dedicated butler. Airport pickup is included.',
     bed: '1 Super King bed',
     imagePath: 'assets/images/presidential.jpg',
@@ -135,24 +138,31 @@ const List<Room> rooms = [
     rating: 4.9,
     reviews: 41,
     facilities: [
-      _wifi, _ac, _tv, _jacuzzi, _balcony, _service, _breakfast, _minibar,
-      _safe, _coffee, _parking, _pool
+      _wifi, _ac, _tv, _jacuzzi, _balcony, _service, _breakfast,
+      _minibar, _safe, _coffee, _parking, _pool,
     ],
-    gradient: [Color(0xFFC9A24B), Color(0xFF7A5A1A)],
-    icon: Icons.workspace_premium,
+    gradient: [Color(0xFF7B1FA2), Color(0xFF4A148C)],
+    icon: Icons.star,
     featured: true,
   ),
 ];
 
+// Room type filter options
 const List<String> roomTypes = [
-  'All', 'Standard', 'Deluxe', 'Executive', 'Family', 'Suite'
+  'All',
+  'Standard',
+  'Deluxe',
+  'Executive',
+  'Family',
+  'Suite',
 ];
 
+// Hotel services shown on home screen
 const List<HotelService> services = [
-  HotelService('Airport pickup', 'UGX 120,000', Icons.airport_shuttle),
+  HotelService('Airport Pickup', 'UGX 120,000', Icons.airport_shuttle),
   HotelService('Pearl Terrace', 'Breakfast UGX 45,000', Icons.restaurant),
-  HotelService('Spa & massage', 'From UGX 90,000', Icons.spa),
-  HotelService('Conference hall', 'UGX 800,000 / day', Icons.business_center),
+  HotelService('Spa and Massage', 'From UGX 90,000', Icons.spa),
+  HotelService('Conference Hall', 'UGX 800,000 / day', Icons.business_center),
   HotelService('Laundry', 'From UGX 15,000', Icons.local_laundry_service),
-  HotelService('City & Nile tour', 'UGX 250,000', Icons.map),
+  HotelService('City Tour', 'UGX 250,000', Icons.map),
 ];

@@ -14,7 +14,10 @@ class BookingScreen extends StatefulWidget {
 }
 
 class _BookingScreenState extends State<BookingScreen> {
+  // Form key to validate all fields together
   final _formKey = GlobalKey<FormState>();
+
+  // Text controllers for each input field
   final _nameCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
@@ -25,16 +28,23 @@ class _BookingScreenState extends State<BookingScreen> {
   int _guests = 1;
   String _payment = 'Pay at hotel';
 
-  static const _paymentOptions = ['Pay at hotel', 'Mobile Money', 'Card'];
+  // Payment choices
+  static const List<String> _paymentOptions = [
+    'Pay at hotel',
+    'Mobile Money',
+    'Card',
+  ];
 
   @override
   void initState() {
     super.initState();
+    // Default dates: tomorrow check-in, 2 days later check-out
     final now = DateTime.now();
     _checkIn = DateTime(now.year, now.month, now.day + 1);
     _checkOut = DateTime(now.year, now.month, now.day + 3);
   }
 
+  // Clean up controllers when widget is removed
   @override
   void dispose() {
     _nameCtrl.dispose();
@@ -44,9 +54,13 @@ class _BookingScreenState extends State<BookingScreen> {
     super.dispose();
   }
 
+  // How many nights between check-in and check-out
   int get _nights => _checkOut.difference(_checkIn).inDays;
+
+  // Total price
   int get _total => _nights * widget.room.pricePerNight;
 
+  // Open date picker for check-in
   Future<void> _pickCheckIn() async {
     final today = DateTime.now();
     final picked = await showDatePicker(
@@ -58,12 +72,14 @@ class _BookingScreenState extends State<BookingScreen> {
     if (picked == null) return;
     setState(() {
       _checkIn = picked;
+      // Make sure check-out is always after check-in
       if (!_checkOut.isAfter(_checkIn)) {
         _checkOut = _checkIn.add(const Duration(days: 1));
       }
     });
   }
 
+  // Open date picker for check-out
   Future<void> _pickCheckOut() async {
     final picked = await showDatePicker(
       context: context,
@@ -71,13 +87,20 @@ class _BookingScreenState extends State<BookingScreen> {
       firstDate: _checkIn.add(const Duration(days: 1)),
       lastDate: _checkIn.add(const Duration(days: 60)),
     );
-    if (picked != null) setState(() => _checkOut = picked);
+    if (picked != null) {
+      setState(() {
+        _checkOut = picked;
+      });
+    }
   }
 
+  // Validate and submit the booking
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
 
+    // Create a simple booking reference number
     final ref = 'PSK-${(DateTime.now().millisecondsSinceEpoch % 90000) + 10000}';
+
     final booking = Booking(
       reference: ref,
       room: widget.room,
@@ -90,11 +113,16 @@ class _BookingScreenState extends State<BookingScreen> {
       payment: _payment,
       requests: _requestsCtrl.text.trim(),
     );
+
+    // Save the booking
     BookingStore.add(booking);
 
+    // Go to confirmation screen
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (_) => ConfirmationScreen(booking: booking)),
+      MaterialPageRoute(
+        builder: (_) => ConfirmationScreen(booking: booking),
+      ),
     );
   }
 
@@ -109,7 +137,7 @@ class _BookingScreenState extends State<BookingScreen> {
         child: ListView(
           padding: const EdgeInsets.all(20),
           children: [
-            // Room summary
+            // Room summary card at top
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
@@ -118,6 +146,7 @@ class _BookingScreenState extends State<BookingScreen> {
               ),
               child: Row(
                 children: [
+                  // Room icon preview
                   Container(
                     width: 56,
                     height: 56,
@@ -132,13 +161,19 @@ class _BookingScreenState extends State<BookingScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(room.name,
-                            style: const TextStyle(
-                                fontWeight: FontWeight.w700, fontSize: 15)),
+                        Text(
+                          room.name,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 15,
+                          ),
+                        ),
                         Text(
                           '${formatUgx(room.pricePerNight)} per night',
                           style: const TextStyle(
-                              color: AppColors.muted, fontSize: 12),
+                            color: AppColors.muted,
+                            fontSize: 12,
+                          ),
                         ),
                       ],
                     ),
@@ -146,8 +181,12 @@ class _BookingScreenState extends State<BookingScreen> {
                 ],
               ),
             ),
+
             const SizedBox(height: 22),
-            const _Heading('Stay details'),
+
+            // Stay dates section
+            const _SectionHeading('Stay Details'),
+
             Row(
               children: [
                 Expanded(
@@ -167,7 +206,10 @@ class _BookingScreenState extends State<BookingScreen> {
                 ),
               ],
             ),
+
             const SizedBox(height: 12),
+
+            // Guest count row
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
               decoration: BoxDecoration(
@@ -185,14 +227,21 @@ class _BookingScreenState extends State<BookingScreen> {
                       style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                   ),
+                  // Minus button
                   IconButton(
-                    onPressed:
-                    _guests > 1 ? () => setState(() => _guests--) : null,
+                    onPressed: _guests > 1
+                        ? () => setState(() => _guests--)
+                        : null,
                     icon: const Icon(Icons.remove_circle_outline),
                   ),
-                  Text('$_guests',
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.w700)),
+                  Text(
+                    '$_guests',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  // Plus button
                   IconButton(
                     onPressed: _guests < room.capacity
                         ? () => setState(() => _guests++)
@@ -202,8 +251,12 @@ class _BookingScreenState extends State<BookingScreen> {
                 ],
               ),
             ),
+
             const SizedBox(height: 22),
-            const _Heading('Guest information'),
+
+            // Guest info section
+            const _SectionHeading('Guest Information'),
+
             TextFormField(
               controller: _nameCtrl,
               textCapitalization: TextCapitalization.words,
@@ -211,11 +264,16 @@ class _BookingScreenState extends State<BookingScreen> {
                 labelText: 'Full name',
                 prefixIcon: Icon(Icons.person_outline),
               ),
-              validator: (v) => (v == null || v.trim().length < 3)
-                  ? 'Please enter your full name'
-                  : null,
+              validator: (v) {
+                if (v == null || v.trim().length < 3) {
+                  return 'Please enter your full name';
+                }
+                return null;
+              },
             ),
+
             const SizedBox(height: 12),
+
             TextFormField(
               controller: _emailCtrl,
               keyboardType: TextInputType.emailAddress,
@@ -224,14 +282,16 @@ class _BookingScreenState extends State<BookingScreen> {
                 prefixIcon: Icon(Icons.email_outlined),
               ),
               validator: (v) {
-                final t = v?.trim() ?? '';
-                if (!t.contains('@') || !t.contains('.')) {
+                final text = v?.trim() ?? '';
+                if (!text.contains('@') || !text.contains('.')) {
                   return 'Enter a valid email address';
                 }
                 return null;
               },
             ),
+
             const SizedBox(height: 12),
+
             TextFormField(
               controller: _phoneCtrl,
               keyboardType: TextInputType.phone,
@@ -242,10 +302,15 @@ class _BookingScreenState extends State<BookingScreen> {
               ),
               validator: (v) {
                 final digits = (v ?? '').replaceAll(RegExp(r'[^0-9]'), '');
-                return digits.length < 9 ? 'Enter a valid phone number' : null;
+                if (digits.length < 9) {
+                  return 'Enter a valid phone number';
+                }
+                return null;
               },
             ),
+
             const SizedBox(height: 12),
+
             TextFormField(
               controller: _requestsCtrl,
               maxLines: 3,
@@ -258,32 +323,43 @@ class _BookingScreenState extends State<BookingScreen> {
                 ),
               ),
             ),
+
             const SizedBox(height: 22),
-            const _Heading('Payment method'),
+
+            // Payment method section
+            const _SectionHeading('Payment Method'),
+
             Wrap(
               spacing: 8,
-              children: _paymentOptions.map((p) {
-                final selected = p == _payment;
+              children: _paymentOptions.map((option) {
+                final isSelected = option == _payment;
                 return ChoiceChip(
-                  label: Text(p),
-                  selected: selected,
+                  label: Text(option),
+                  selected: isSelected,
                   showCheckmark: false,
                   selectedColor: AppColors.primary,
                   backgroundColor: Colors.white,
                   labelStyle: TextStyle(
-                    color: selected ? Colors.white : AppColors.text,
+                    color: isSelected ? Colors.white : AppColors.text,
                     fontWeight: FontWeight.w600,
                   ),
-                  onSelected: (_) => setState(() => _payment = p),
+                  onSelected: (_) {
+                    setState(() => _payment = option);
+                  },
                 );
               }).toList(),
             ),
+
             const SizedBox(height: 6),
+
             const Text(
-              "You won't be charged now.",
+              'You will not be charged now.',
               style: TextStyle(fontSize: 12, color: AppColors.muted),
             ),
+
             const SizedBox(height: 22),
+
+            // Price summary
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -292,22 +368,25 @@ class _BookingScreenState extends State<BookingScreen> {
               ),
               child: Column(
                 children: [
-                  _PriceRow(
-                    '${formatUgx(room.pricePerNight)} × $_nights ${_nights == 1 ? 'night' : 'nights'}',
+                  _PriceLine(
+                    '${formatUgx(room.pricePerNight)} x $_nights ${_nights == 1 ? 'night' : 'nights'}',
                     formatUgx(_total),
                   ),
                   const SizedBox(height: 8),
-                  const _PriceRow('Taxes & service fee', 'Included'),
+                  const _PriceLine('Taxes and service fee', 'Included'),
                   const Divider(height: 24),
-                  _PriceRow('Total', formatUgx(_total), bold: true),
+                  _PriceLine('Total', formatUgx(_total), bold: true),
                 ],
               ),
             ),
+
             const SizedBox(height: 20),
+
             ElevatedButton(
               onPressed: _submit,
-              child: const Text('Confirm booking'),
+              child: const Text('Confirm Booking'),
             ),
+
             const SizedBox(height: 12),
           ],
         ),
@@ -316,26 +395,36 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 }
 
-class _Heading extends StatelessWidget {
+// Section heading text
+class _SectionHeading extends StatelessWidget {
   final String text;
-  const _Heading(this.text);
+  const _SectionHeading(this.text);
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
-      child: Text(text,
-          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+      child: Text(
+        text,
+        style: const TextStyle(
+          fontSize: 17,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
     );
   }
 }
 
+// Tappable date field
 class _DateField extends StatelessWidget {
   final String label;
   final DateTime value;
   final VoidCallback onTap;
-  const _DateField(
-      {required this.label, required this.value, required this.onTap});
+  const _DateField({
+    required this.label,
+    required this.value,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -347,18 +436,24 @@ class _DateField extends StatelessWidget {
           labelText: label,
           prefixIcon: const Icon(Icons.calendar_today, size: 18),
         ),
-        child: Text(formatDate(value),
-            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+        child: Text(
+          formatDate(value),
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 13,
+          ),
+        ),
       ),
     );
   }
 }
 
-class _PriceRow extends StatelessWidget {
+// A single price row in the summary
+class _PriceLine extends StatelessWidget {
   final String left;
   final String right;
   final bool bold;
-  const _PriceRow(this.left, this.right, {this.bold = false});
+  const _PriceLine(this.left, this.right, {this.bold = false});
 
   @override
   Widget build(BuildContext context) {

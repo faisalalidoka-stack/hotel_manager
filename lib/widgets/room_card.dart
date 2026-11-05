@@ -4,9 +4,10 @@ import '../screens/room_details_screen.dart';
 import '../theme/app_theme.dart';
 import 'common.dart';
 
+// A card showing a room photo, name, capacity and price
 class RoomCard extends StatelessWidget {
   final Room room;
-  final bool compact;
+  final bool compact; // compact = smaller card for horizontal list
   const RoomCard({super.key, required this.room, this.compact = false});
 
   @override
@@ -17,65 +18,26 @@ class RoomCard extends StatelessWidget {
       elevation: 2,
       shadowColor: Colors.black26,
       clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
       child: InkWell(
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => RoomDetailsScreen(room: room)),
-        ),
+        onTap: () {
+          // Open the room details screen when tapped
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => RoomDetailsScreen(room: room),
+            ),
+          );
+        },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Stack(
-              children: [
-                RoomImage(room: room, height: compact ? 130 : 180),
-                Positioned(
-                  top: 10,
-                  left: 10,
-                  child: Container(
-                    padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: AppColors.gold,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      room.type,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: 10,
-                  right: 10,
-                  child: Container(
-                    padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.star, size: 14, color: AppColors.gold),
-                        const SizedBox(width: 3),
-                        Text(
-                          '${room.rating}',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            // Room photo
+            RoomImage(room: room, height: compact ? 130 : 180),
+
+            // Room name, capacity and price
             Padding(
               padding: const EdgeInsets.all(12),
               child: Column(
@@ -94,13 +56,18 @@ class RoomCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      const Icon(Icons.person_outline,
-                          size: 15, color: AppColors.muted),
+                      const Icon(
+                        Icons.person_outline,
+                        size: 15,
+                        color: AppColors.muted,
+                      ),
                       const SizedBox(width: 4),
                       Text(
-                        'Sleeps ${room.capacity}  ·  ${room.sizeSqm} m²',
+                        'Sleeps ${room.capacity}  |  ${room.sizeSqm} m2',
                         style: const TextStyle(
-                            fontSize: 12, color: AppColors.muted),
+                          fontSize: 12,
+                          color: AppColors.muted,
+                        ),
                       ),
                     ],
                   ),
@@ -114,6 +81,10 @@ class RoomCard extends StatelessWidget {
       ),
     );
 
-    return compact ? SizedBox(width: 240, child: card) : card;
+    // Compact cards have a fixed width for horizontal scrolling
+    if (compact) {
+      return SizedBox(width: 240, child: card);
+    }
+    return card;
   }
 }

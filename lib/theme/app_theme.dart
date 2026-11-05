@@ -1,29 +1,23 @@
 import 'package:flutter/material.dart';
 
+// App color palette - soft blue and warm tones, easy on the eyes
 class AppColors {
-  static const primary = Color(0xFF0F4C45);
-  static const primaryLight = Color(0xFF1B6B60);
-  static const gold = Color(0xFFC9A24B);
-  static const background = Color(0xFFF7F5F0);
-  static const text = Color(0xFF1F2A28);
-  static const muted = Color(0xFF6B7773);
+  static const primary = Color(0xFF1565C0);      // friendly blue
+  static const primaryLight = Color(0xFF1976D2); // lighter blue
+  static const accent = Color(0xFFFF8F00);       // warm amber
+  static const background = Color(0xFFF4F6FA);   // light grey-blue
+  static const text = Color(0xFF1A1A2E);         // dark readable text
+  static const muted = Color(0xFF6B7A99);        // soft grey for labels
 }
 
 ThemeData buildAppTheme() {
-  final scheme = ColorScheme.fromSeed(
-    seedColor: AppColors.primary,
-    primary: AppColors.primary,
-    secondary: AppColors.gold,
-  );
-
-  OutlineInputBorder border(Color c, [double w = 1]) => OutlineInputBorder(
-    borderRadius: BorderRadius.circular(12),
-    borderSide: BorderSide(color: c, width: w),
-  );
-
   return ThemeData(
     useMaterial3: true,
-    colorScheme: scheme,
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: AppColors.primary,
+      primary: AppColors.primary,
+      secondary: AppColors.accent,
+    ),
     scaffoldBackgroundColor: AppColors.background,
     appBarTheme: const AppBarTheme(
       backgroundColor: AppColors.primary,
@@ -40,19 +34,39 @@ ThemeData buildAppTheme() {
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
-        minimumSize: const Size.fromHeight(52),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        minimumSize: const Size.fromHeight(50),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        textStyle: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: Colors.white,
-      border: border(Colors.grey.shade300),
-      enabledBorder: border(Colors.grey.shade300),
-      focusedBorder: border(AppColors.primary, 1.5),
-      errorBorder: border(Colors.red.shade400),
-      focusedErrorBorder: border(Colors.red.shade400, 1.5),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Colors.grey.shade300),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Colors.grey.shade300),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Colors.redAccent),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
+      ),
     ),
   );
 }

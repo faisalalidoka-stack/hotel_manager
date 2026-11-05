@@ -9,46 +9,65 @@ class ConfirmationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Get first name from full name
     final firstName = booking.guestName.split(' ').first;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Booking confirmed'),
+        title: const Text('Booking Confirmed'),
         automaticallyImplyLeading: false,
       ),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
           const SizedBox(height: 8),
+
+          // Big green check icon
           const Center(
-            child: Icon(Icons.check_circle, size: 84, color: Color(0xFF2E9E6B)),
+            child: Icon(
+              Icons.check_circle,
+              size: 84,
+              color: Color(0xFF2E9E6B),
+            ),
           ),
+
           const SizedBox(height: 12),
+
+          // Thank you message
           Center(
             child: Text(
               'Thank you, $firstName!',
-              style:
-              const TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
+              ),
             ),
           ),
+
           const SizedBox(height: 4),
+
           const Center(
             child: Text(
               'Your stay at Pearl Suites is reserved.',
               style: TextStyle(color: AppColors.muted),
             ),
           ),
+
           const SizedBox(height: 22),
+
+          // Booking reference box
           Container(
             padding: const EdgeInsets.symmetric(vertical: 14),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.08),
+              color: const Color(0xFFE3EEFF),
               borderRadius: BorderRadius.circular(14),
             ),
             child: Column(
               children: [
-                const Text('Booking reference',
-                    style: TextStyle(fontSize: 12, color: AppColors.muted)),
+                const Text(
+                  'Booking Reference',
+                  style: TextStyle(fontSize: 12, color: AppColors.muted),
+                ),
                 const SizedBox(height: 4),
                 Text(
                   booking.reference,
@@ -62,7 +81,10 @@ class ConfirmationScreen extends StatelessWidget {
               ],
             ),
           ),
+
           const SizedBox(height: 18),
+
+          // Booking details card
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -71,27 +93,34 @@ class ConfirmationScreen extends StatelessWidget {
             ),
             child: Column(
               children: [
-                _Line('Room', booking.room.name),
-                _Line('Check-in', formatDate(booking.checkIn)),
-                _Line('Check-out', formatDate(booking.checkOut)),
-                _Line('Nights', '${booking.nights}'),
-                _Line('Guests', '${booking.guests}'),
-                _Line('Payment', booking.payment),
+                _DetailLine('Room', booking.room.name),
+                _DetailLine('Check-in', formatDate(booking.checkIn)),
+                _DetailLine('Check-out', formatDate(booking.checkOut)),
+                _DetailLine('Nights', '${booking.nights}'),
+                _DetailLine('Guests', '${booking.guests}'),
+                _DetailLine('Payment', booking.payment),
                 const Divider(height: 24),
-                _Line('Total', formatUgx(booking.total), bold: true),
+                _DetailLine('Total', formatUgx(booking.total), bold: true),
               ],
             ),
           ),
+
           const SizedBox(height: 12),
+
           Text(
             'A confirmation will be sent to ${booking.email}.',
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 12, color: AppColors.muted),
           ),
+
           const SizedBox(height: 24),
+
           ElevatedButton(
-            onPressed: () => Navigator.popUntil(context, (r) => r.isFirst),
-            child: const Text('Back to home'),
+            onPressed: () {
+              // Go all the way back to the home screen
+              Navigator.popUntil(context, (route) => route.isFirst);
+            },
+            child: const Text('Back to Home'),
           ),
         ],
       ),
@@ -99,11 +128,12 @@ class ConfirmationScreen extends StatelessWidget {
   }
 }
 
-class _Line extends StatelessWidget {
+// A label-value row for the booking details card
+class _DetailLine extends StatelessWidget {
   final String label;
   final String value;
   final bool bold;
-  const _Line(this.label, this.value, {this.bold = false});
+  const _DetailLine(this.label, this.value, {this.bold = false});
 
   @override
   Widget build(BuildContext context) {
@@ -112,7 +142,10 @@ class _Line extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(color: AppColors.muted)),
+          Text(
+            label,
+            style: const TextStyle(color: AppColors.muted),
+          ),
           const SizedBox(width: 12),
           Flexible(
             child: Text(
