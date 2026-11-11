@@ -1,33 +1,73 @@
 import 'package:flutter/material.dart';
 import '../models/models.dart';
 
-// Facility definitions - reused across multiple rooms
-const _wifi = Facility('Free Wi-Fi', Icons.wifi);
-const _ac = Facility('Air conditioning', Icons.ac_unit);
-const _tv = Facility('Smart TV', Icons.tv);
-const _shower = Facility('Hot shower', Icons.shower);
-const _coffee = Facility('Tea and coffee', Icons.coffee);
-const _breakfast = Facility('Breakfast included', Icons.free_breakfast);
-const _desk = Facility('Work desk', Icons.desk);
-const _safe = Facility('In-room safe', Icons.lock);
-const _minibar = Facility('Mini bar', Icons.local_bar);
-const _balcony = Facility('Private balcony', Icons.balcony);
-const _bath = Facility('Bathtub', Icons.bathtub);
-const _jacuzzi = Facility('Jacuzzi', Icons.hot_tub);
-const _parking = Facility('Free parking', Icons.local_parking);
-const _pool = Facility('Pool access', Icons.pool);
-const _kitchen = Facility('Kitchenette', Icons.kitchen);
-const _service = Facility('24h room service', Icons.room_service);
+// Static lists used for filters, forms and first-run sample data.
+// Rooms, users and bookings themselves now live in the SQLite database.
 
-// Guest profile details
-const String guestName = 'Ntege Fahim';
-const String guestEmail = 'ntege.fahim@gmail.com';
-const String guestPhone = '0757 686 831';
+const List<String> roomTypes = [
+  'All',
+  'Standard',
+  'Deluxe',
+  'Executive',
+  'Family',
+  'Suite',
+];
 
-// All available rooms
-const List<Room> rooms = [
+// Same list without 'All' - used in the admin room form
+const List<String> roomTypeChoices = [
+  'Standard',
+  'Deluxe',
+  'Executive',
+  'Family',
+  'Suite',
+];
+
+const List<String> bookingStatuses = [
+  'Pending',
+  'Confirmed',
+  'Completed',
+  'Cancelled',
+];
+
+const List<String> paymentOptions = ['Pay at hotel', 'Mobile Money', 'Card'];
+
+const List<String> roomSortOptions = [
+  'Recommended',
+  'Price: low to high',
+  'Price: high to low',
+  'Top rated',
+  'Name (A-Z)',
+];
+
+const List<String> bookingSortOptions = [
+  'Newest first',
+  'Check-in date',
+  'Highest value',
+];
+
+// Photos that can be chosen in the admin room form
+const List<String> roomImages = [
+  'assets/images/standard_queen.jpg',
+  'assets/images/standard_twin.jpg',
+  'assets/images/deluxe_garden.jpg',
+  'assets/images/executive_lake.jpg',
+  'assets/images/family_suite.jpg',
+  'assets/images/presidential.jpg',
+];
+
+// Hotel services shown on home screen
+const List<HotelService> services = [
+  HotelService('Airport Pickup', 'UGX 120,000', Icons.airport_shuttle),
+  HotelService('Pearl Terrace', 'Breakfast UGX 45,000', Icons.restaurant),
+  HotelService('Spa and Massage', 'From UGX 90,000', Icons.spa),
+  HotelService('Conference Hall', 'UGX 800,000 / day', Icons.business_center),
+  HotelService('Laundry', 'From UGX 15,000', Icons.local_laundry_service),
+  HotelService('City Tour', 'UGX 250,000', Icons.map),
+];
+
+// Sample rooms inserted the first time the database is created
+const List<Room> seedRooms = [
   Room(
-    id: 1,
     name: 'Standard Queen Room',
     type: 'Standard',
     description:
@@ -40,12 +80,9 @@ const List<Room> rooms = [
     capacity: 2,
     rating: 4.5,
     reviews: 128,
-    facilities: [_wifi, _ac, _tv, _shower, _coffee, _parking],
-    gradient: [Color(0xFF1976D2), Color(0xFF1565C0)],
-    icon: Icons.bed,
+    facilityKeys: ['wifi', 'ac', 'tv', 'shower', 'coffee', 'parking'],
   ),
   Room(
-    id: 2,
     name: 'Standard Twin Room',
     type: 'Standard',
     description:
@@ -58,12 +95,9 @@ const List<Room> rooms = [
     capacity: 2,
     rating: 4.4,
     reviews: 96,
-    facilities: [_wifi, _ac, _tv, _desk, _shower, _parking],
-    gradient: [Color(0xFF1E88E5), Color(0xFF1565C0)],
-    icon: Icons.single_bed,
+    facilityKeys: ['wifi', 'ac', 'tv', 'desk', 'shower', 'parking'],
   ),
   Room(
-    id: 3,
     name: 'Deluxe Garden View',
     type: 'Deluxe',
     description:
@@ -76,13 +110,12 @@ const List<Room> rooms = [
     capacity: 2,
     rating: 4.7,
     reviews: 214,
-    facilities: [_wifi, _ac, _tv, _breakfast, _minibar, _safe, _shower, _pool],
-    gradient: [Color(0xFF26A69A), Color(0xFF00796B)],
-    icon: Icons.king_bed,
+    facilityKeys: [
+      'wifi', 'ac', 'tv', 'breakfast', 'minibar', 'safe', 'shower', 'pool',
+    ],
     featured: true,
   ),
   Room(
-    id: 4,
     name: 'Executive Lake View',
     type: 'Executive',
     description:
@@ -95,15 +128,13 @@ const List<Room> rooms = [
     capacity: 3,
     rating: 4.8,
     reviews: 173,
-    facilities: [
-      _wifi, _ac, _tv, _balcony, _desk, _breakfast, _minibar, _safe, _bath, _pool,
+    facilityKeys: [
+      'wifi', 'ac', 'tv', 'balcony', 'desk', 'breakfast', 'minibar', 'safe',
+      'bath', 'pool',
     ],
-    gradient: [Color(0xFF1565C0), Color(0xFF0D47A1)],
-    icon: Icons.king_bed,
     featured: true,
   ),
   Room(
-    id: 5,
     name: 'Family Suite',
     type: 'Family',
     description:
@@ -116,15 +147,13 @@ const List<Room> rooms = [
     capacity: 4,
     rating: 4.6,
     reviews: 89,
-    facilities: [
-      _wifi, _ac, _tv, _kitchen, _breakfast, _safe, _shower, _parking, _pool,
+    facilityKeys: [
+      'wifi', 'ac', 'tv', 'kitchen', 'breakfast', 'safe', 'shower', 'parking',
+      'pool',
     ],
-    gradient: [Color(0xFFFF8F00), Color(0xFFE65100)],
-    icon: Icons.family_restroom,
     featured: true,
   ),
   Room(
-    id: 6,
     name: 'Presidential Suite',
     type: 'Suite',
     description:
@@ -137,32 +166,10 @@ const List<Room> rooms = [
     capacity: 4,
     rating: 4.9,
     reviews: 41,
-    facilities: [
-      _wifi, _ac, _tv, _jacuzzi, _balcony, _service, _breakfast,
-      _minibar, _safe, _coffee, _parking, _pool,
+    facilityKeys: [
+      'wifi', 'ac', 'tv', 'jacuzzi', 'balcony', 'service', 'breakfast',
+      'minibar', 'safe', 'coffee', 'parking', 'pool',
     ],
-    gradient: [Color(0xFF7B1FA2), Color(0xFF4A148C)],
-    icon: Icons.star,
     featured: true,
   ),
-];
-
-// Room type filter options
-const List<String> roomTypes = [
-  'All',
-  'Standard',
-  'Deluxe',
-  'Executive',
-  'Family',
-  'Suite',
-];
-
-// Hotel services shown on home screen
-const List<HotelService> services = [
-  HotelService('Airport Pickup', 'UGX 120,000', Icons.airport_shuttle),
-  HotelService('Pearl Terrace', 'Breakfast UGX 45,000', Icons.restaurant),
-  HotelService('Spa and Massage', 'From UGX 90,000', Icons.spa),
-  HotelService('Conference Hall', 'UGX 800,000 / day', Icons.business_center),
-  HotelService('Laundry', 'From UGX 15,000', Icons.local_laundry_service),
-  HotelService('City Tour', 'UGX 250,000', Icons.map),
 ];

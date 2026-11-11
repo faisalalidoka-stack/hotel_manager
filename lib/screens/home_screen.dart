@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import '../data/database_helper.dart';
+import '../data/session.dart';
 import '../data/static_data.dart';
+import '../models/models.dart';
 import '../theme/app_theme.dart';
 import '../utils/format.dart';
 import '../widgets/common.dart';
+import '../widgets/db_builder.dart';
 import '../widgets/room_card.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -11,9 +15,6 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get only featured rooms
-    final featuredRooms = rooms.where((r) => r.featured).toList();
-
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -30,13 +31,25 @@ class HomeScreen extends StatelessWidget {
             ),
             SizedBox(
               height: 252,
-              child: ListView.separated(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                scrollDirection: Axis.horizontal,
-                itemCount: featuredRooms.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 14),
-                itemBuilder: (_, i) {
-                  return RoomCard(room: featuredRooms[i], compact: true);
+              child: DbBuilder<List<Room>>(
+                load: () => DatabaseHelper.instance.getRooms(featuredOnly: true),
+                builder: (context, featuredRooms) {
+                  if (featuredRooms.isEmpty) {
+                    return const EmptyView(
+                      icon: Icons.bed_outlined,
+                      title: 'No featured rooms',
+                      message: 'Check back soon for new offers.',
+                    );
+                  }
+                  return ListView.separated(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    scrollDirection: Axis.horizontal,
+                    itemCount: featuredRooms.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 14),
+                    itemBuilder: (_, i) {
+                      return RoomCard(room: featuredRooms[i], compact: true);
+                    },
+                  );
                 },
               ),
             ),
@@ -186,15 +199,15 @@ class _Header extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Column(
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'Welcome back,',
                       style: TextStyle(color: Colors.white70, fontSize: 13),
                     ),
                     Text(
-                      guestName,
+                      Session.user?.fullName ?? 'Guest',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 20,
@@ -205,7 +218,7 @@ class _Header extends StatelessWidget {
                 ),
                 // Avatar button to go to profile
                 GestureDetector(
-                  onTap: () => onNavigate(2),
+                  onTap: () => onNavigate(3),
                   child: const CircleAvatar(
                     radius: 22,
                     backgroundColor: AppColors.accent,

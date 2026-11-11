@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import 'home_screen.dart';
+import 'my_bookings_screen.dart';
 import 'profile_screen.dart';
 import 'rooms_screen.dart';
 
@@ -21,6 +22,7 @@ class _MainShellState extends State<MainShell> {
     _pages = [
       HomeScreen(onNavigate: _go),
       const RoomsScreen(),
+      const MyBookingsScreen(),
       const ProfileScreen(),
     ];
   }
@@ -47,6 +49,10 @@ class _MainShellState extends State<MainShell> {
               icon: Icon(Icons.bed_outlined),
               activeIcon: Icon(Icons.bed),
               label: 'Rooms'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.event_note_outlined),
+              activeIcon: Icon(Icons.event_note),
+              label: 'Bookings'),
           BottomNavigationBarItem(
               icon: Icon(Icons.person_outline),
               activeIcon: Icon(Icons.person),

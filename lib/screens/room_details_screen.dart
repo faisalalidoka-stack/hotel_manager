@@ -53,11 +53,11 @@ class RoomDetailsScreen extends StatelessWidget {
                       const Icon(Icons.star, size: 18, color: AppColors.accent),
                       const SizedBox(width: 4),
                       Text(
-                        '${room.rating}',
+                        room.reviews == 0 ? 'New' : '${room.rating}',
                         style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                       Text(
-                        '  (${room.reviews} reviews)',
+                        room.reviews == 0 ? '' : '  (${room.reviews} reviews)',
                         style: const TextStyle(
                           color: AppColors.muted,
                           fontSize: 12,

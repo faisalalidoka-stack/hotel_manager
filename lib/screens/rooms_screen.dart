@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import '../data/database_helper.dart';
 import '../data/static_data.dart';
+import '../models/models.dart';
 import '../theme/app_theme.dart';
+import '../widgets/common.dart';
+import '../widgets/db_builder.dart';
 import '../widgets/room_card.dart';
 
 class RoomsScreen extends StatefulWidget {
@@ -11,72 +15,93 @@ class RoomsScreen extends StatefulWidget {
 }
 
 class _RoomsScreenState extends State<RoomsScreen> {
-  // Which room type filter is currently selected
+  final _searchCtrl = TextEditingController();
+  String _query = '';
   String _selectedType = 'All';
+  String _sort = roomSortOptions.first;
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Filter rooms by selected type, or show all
-    final filteredRooms = _selectedType == 'All'
-        ? rooms
-        : rooms.where((r) => r.type == _selectedType).toList();
-
     return Scaffold(
       appBar: AppBar(title: const Text('Rooms and Suites')),
       body: Column(
         children: [
-          // Filter chips row
-          SizedBox(
-            height: 60,
-            child: ListView.separated(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
-              ),
-              scrollDirection: Axis.horizontal,
-              itemCount: roomTypes.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 8),
-              itemBuilder: (_, i) {
-                final type = roomTypes[i];
-                final isSelected = type == _selectedType;
-                return ChoiceChip(
-                  label: Text(type),
-                  selected: isSelected,
-                  showCheckmark: false,
-                  selectedColor: AppColors.primary,
-                  backgroundColor: Colors.white,
-                  labelStyle: TextStyle(
-                    color: isSelected ? Colors.white : AppColors.text,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  onSelected: (_) {
-                    setState(() => _selectedType = type);
-                  },
-                );
-              },
-            ),
-          ),
-
-          // Room count label
+          // Search box
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                '${filteredRooms.length} ${filteredRooms.length == 1 ? 'room' : 'rooms'} available',
-                style: const TextStyle(color: AppColors.muted, fontSize: 13),
-              ),
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+            child: SearchField(
+              controller: _searchCtrl,
+              hint: 'Search rooms, e.g. lake, family, suite',
+              onChanged: (v) => setState(() => _query = v),
             ),
           ),
 
-          // Rooms list
+          // Type filter chips
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: FilterChips(
+              options: roomTypes,
+              selected: _selectedType,
+              onSelected: (t) => setState(() => _selectedType = t),
+            ),
+          ),
+
+          // Results are loaded from the database using the search,
+          // filter and sort choices above
           Expanded(
-            child: ListView.separated(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 20),
-              itemCount: filteredRooms.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 16),
-              itemBuilder: (_, i) {
-                return RoomCard(room: filteredRooms[i]);
+            child: DbBuilder<List<Room>>(
+              load: () => DatabaseHelper.instance.getRooms(
+                search: _query,
+                type: _selectedType,
+                sort: _sort,
+              ),
+              builder: (context, rooms) {
+                return Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 8, 16, 4),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '${rooms.length} ${rooms.length == 1 ? 'room' : 'rooms'} available',
+                            style: const TextStyle(
+                                color: AppColors.muted, fontSize: 13),
+                          ),
+                          SortMenu(
+                            options: roomSortOptions,
+                            value: _sort,
+                            onChanged: (v) => setState(() => _sort = v),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: rooms.isEmpty
+                          ? const EmptyView(
+                              icon: Icons.search_off,
+                              title: 'No rooms found',
+                              message:
+                                  'Try a different search word or filter.',
+                            )
+                          : ListView.separated(
+                              padding:
+                                  const EdgeInsets.fromLTRB(16, 4, 16, 20),
+                              itemCount: rooms.length,
+                              separatorBuilder: (_, __) =>
+                                  const SizedBox(height: 16),
+                              itemBuilder: (_, i) =>
+                                  RoomCard(room: rooms[i]),
+                            ),
+                    ),
+                  ],
+                );
               },
             ),
           ),

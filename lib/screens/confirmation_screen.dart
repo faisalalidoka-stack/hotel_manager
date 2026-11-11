@@ -99,6 +99,7 @@ class ConfirmationScreen extends StatelessWidget {
                 _DetailLine('Nights', '${booking.nights}'),
                 _DetailLine('Guests', '${booking.guests}'),
                 _DetailLine('Payment', booking.payment),
+                _DetailLine('Status', booking.status),
                 const Divider(height: 24),
                 _DetailLine('Total', formatUgx(booking.total), bold: true),
               ],

@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
-import '../data/booking_store.dart';
+import '../data/database_helper.dart';
+import '../data/session.dart';
+import '../data/static_data.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
 import '../utils/format.dart';
+import '../widgets/common.dart';
 import 'confirmation_screen.dart';
 
 class BookingScreen extends StatefulWidget {
   final Room room;
-  const BookingScreen({super.key, required this.room});
+  final Booking? existing; // set when editing a saved booking
+  const BookingScreen({super.key, required this.room, this.existing});
 
   @override
   State<BookingScreen> createState() => _BookingScreenState();
@@ -27,21 +31,35 @@ class _BookingScreenState extends State<BookingScreen> {
   late DateTime _checkOut;
   int _guests = 1;
   String _payment = 'Pay at hotel';
-
-  // Payment choices
-  static const List<String> _paymentOptions = [
-    'Pay at hotel',
-    'Mobile Money',
-    'Card',
-  ];
+  bool _saving = false;
 
   @override
   void initState() {
     super.initState();
-    // Default dates: tomorrow check-in, 2 days later check-out
-    final now = DateTime.now();
-    _checkIn = DateTime(now.year, now.month, now.day + 1);
-    _checkOut = DateTime(now.year, now.month, now.day + 3);
+    final existing = widget.existing;
+    if (existing != null) {
+      // Editing: start with the saved booking values
+      _checkIn = existing.checkIn;
+      _checkOut = existing.checkOut;
+      _guests = existing.guests;
+      _payment = existing.payment;
+      _nameCtrl.text = existing.guestName;
+      _emailCtrl.text = existing.email;
+      _phoneCtrl.text = existing.phone;
+      _requestsCtrl.text = existing.requests;
+    } else {
+      // New booking: tomorrow check-in, 2 days later check-out
+      final now = DateTime.now();
+      _checkIn = DateTime(now.year, now.month, now.day + 1);
+      _checkOut = DateTime(now.year, now.month, now.day + 3);
+      // Fill the form from the logged in guest
+      final user = Session.user;
+      if (user != null) {
+        _nameCtrl.text = user.fullName;
+        _emailCtrl.text = user.email;
+        _phoneCtrl.text = user.phone;
+      }
+    }
   }
 
   // Clean up controllers when widget is removed
@@ -94,36 +112,63 @@ class _BookingScreenState extends State<BookingScreen> {
     }
   }
 
-  // Validate and submit the booking
-  void _submit() {
+  // Validate, then save the booking in the database
+  Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
+    setState(() => _saving = true);
 
-    // Create a simple booking reference number
-    final ref = 'PSK-${(DateTime.now().millisecondsSinceEpoch % 90000) + 10000}';
-
-    final booking = Booking(
-      reference: ref,
-      room: widget.room,
-      checkIn: _checkIn,
-      checkOut: _checkOut,
-      guests: _guests,
-      guestName: _nameCtrl.text.trim(),
-      email: _emailCtrl.text.trim(),
-      phone: _phoneCtrl.text.trim(),
-      payment: _payment,
-      requests: _requestsCtrl.text.trim(),
-    );
-
-    // Save the booking
-    BookingStore.add(booking);
-
-    // Go to confirmation screen
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) => ConfirmationScreen(booking: booking),
-      ),
-    );
+    final db = DatabaseHelper.instance;
+    try {
+      final existing = widget.existing;
+      if (existing == null) {
+        // Create a new booking record
+        final booking = await db.createBooking(
+          user: Session.user!,
+          room: widget.room,
+          checkIn: _checkIn,
+          checkOut: _checkOut,
+          guests: _guests,
+          guestName: _nameCtrl.text,
+          email: _emailCtrl.text,
+          phone: _phoneCtrl.text,
+          payment: _payment,
+          requests: _requestsCtrl.text,
+        );
+        if (!mounted) return;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ConfirmationScreen(booking: booking),
+          ),
+        );
+      } else {
+        // Update the existing booking record
+        await db.updateBookingDetails(
+          id: existing.id!,
+          room: widget.room,
+          checkIn: _checkIn,
+          checkOut: _checkOut,
+          guests: _guests,
+          guestName: _nameCtrl.text,
+          email: _emailCtrl.text,
+          phone: _phoneCtrl.text,
+          payment: _payment,
+          requests: _requestsCtrl.text,
+        );
+        if (!mounted) return;
+        showMessage(context, 'Booking updated');
+        Navigator.pop(context);
+      }
+    } on AppException catch (e) {
+      if (mounted) showMessage(context, e.message, error: true);
+    } catch (_) {
+      if (mounted) {
+        showMessage(context, 'Could not save the booking. Please try again.',
+            error: true);
+      }
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
   }
 
   @override
@@ -131,7 +176,9 @@ class _BookingScreenState extends State<BookingScreen> {
     final room = widget.room;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Book your stay')),
+      appBar: AppBar(
+        title: Text(widget.existing == null ? 'Book your stay' : 'Edit booking'),
+      ),
       body: Form(
         key: _formKey,
         child: ListView(
@@ -331,7 +378,7 @@ class _BookingScreenState extends State<BookingScreen> {
 
             Wrap(
               spacing: 8,
-              children: _paymentOptions.map((option) {
+              children: paymentOptions.map((option) {
                 final isSelected = option == _payment;
                 return ChoiceChip(
                   label: Text(option),
@@ -383,8 +430,19 @@ class _BookingScreenState extends State<BookingScreen> {
             const SizedBox(height: 20),
 
             ElevatedButton(
-              onPressed: _submit,
-              child: const Text('Confirm Booking'),
+              onPressed: _saving ? null : _submit,
+              child: _saving
+                  ? const SizedBox(
+                      height: 22,
+                      width: 22,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        color: Colors.white,
+                      ),
+                    )
+                  : Text(widget.existing == null
+                      ? 'Confirm Booking'
+                      : 'Save Changes'),
             ),
 
             const SizedBox(height: 12),
